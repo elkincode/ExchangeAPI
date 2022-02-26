@@ -1,0 +1,42 @@
+package com.example.exchangerateapi.repository.room;
+
+import android.app.Application;
+import androidx.lifecycle.LiveData;
+import com.example.exchangerateapi.domain.model.CurrencyDTO;
+import com.example.exchangerateapi.repository.room.dao.CurrencyDAO;
+import java.util.List;
+
+public class CurrencyRepository {
+    private CurrencyDAO currencyDAO;
+
+    public CurrencyRepository (Application application) {
+        CurrencyRoomDatabase db = CurrencyRoomDatabase.getDatabase(application);
+        currencyDAO = db.currencyDAO();
+    }
+
+    public LiveData<Double> getConversionRate(String convertingCurrency,
+                                                   String currencyToConvert) {
+        return currencyDAO.getConversionRate(convertingCurrency, currencyToConvert);
+    }
+
+    public void insertCurrencies(CurrencyDTO currencies) {
+        CurrencyRoomDatabase.databaseWriteExecutor.execute(() -> {
+            currencyDAO.addCurrencies(currencies);
+        });
+    }
+
+    public LiveData<List<CurrencyDTO>> getCurrencyToConvert(String convertingCurrency) {
+        return currencyDAO.getCurrencyToConvert(convertingCurrency);
+    }
+
+    public LiveData<List<CurrencyDTO>> getConvertingCurrency() {
+        return currencyDAO.getConvertingCurrency();
+    }
+
+    public void updateConversionRate(Double conversionRate, String convertingCurrency,
+                                     String currencyToConvert) {
+        CurrencyRoomDatabase.databaseWriteExecutor.execute(() -> {
+            currencyDAO.updateConversionRate(conversionRate, convertingCurrency, currencyToConvert);
+        });
+    }
+}
